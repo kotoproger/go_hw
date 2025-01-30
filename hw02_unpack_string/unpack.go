@@ -26,27 +26,27 @@ func Unpack(input string) (string, error) {
 	var lastSymbol string
 	var result strings.Builder
 	var escaped bool
-	for _, RuneSymbol := range input {
-		intValue, err := strconv.Atoi(string(RuneSymbol))
+	for _, currentSymbol := range input {
+		intValue, err := strconv.Atoi(string(currentSymbol))
 		if err == nil && Digits[intValue] && !escaped {
 			if lastSymbol == "" {
 				return "", ErrInvalidString
 			}
-			result.WriteString(repeatRune(lastSymbol, intValue))
+			result.WriteString(strings.Repeat(lastSymbol, intValue))
 			lastSymbol = ""
 			escaped = false
 		} else {
-			if !escaped && string(RuneSymbol) == "\\" {
+			if !escaped && string(currentSymbol) == "\\" {
 				escaped = true
 
 				continue
 			}
-			if escaped && err != nil && string(RuneSymbol) != "\\" {
+			if escaped && err != nil && string(currentSymbol) != "\\" {
 				return "", ErrInvalidString
 			}
 			escaped = false
 			result.WriteString(lastSymbol)
-			lastSymbol = string(RuneSymbol)
+			lastSymbol = string(currentSymbol)
 		}
 	}
 	if escaped {
@@ -55,8 +55,4 @@ func Unpack(input string) (string, error) {
 	result.WriteString(lastSymbol)
 
 	return result.String(), nil
-}
-
-func repeatRune(symbol string, counter int) string {
-	return strings.Repeat(symbol, counter)
 }
