@@ -28,7 +28,6 @@ func Unpack(input string) (string, error) {
 	var escaped bool
 	for _, RuneSymbol := range input {
 		intValue, err := strconv.Atoi(string(RuneSymbol))
-
 		if err == nil && Digits[intValue] && !escaped {
 			if lastSymbol == "" {
 				return "", ErrInvalidString
@@ -40,6 +39,9 @@ func Unpack(input string) (string, error) {
 				escaped = true
 
 				continue
+			}
+			if escaped && err != nil && string(RuneSymbol) != "\\" {
+				return "", ErrInvalidString
 			}
 			escaped = false
 			result.WriteString(lastSymbol)
