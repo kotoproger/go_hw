@@ -34,6 +34,7 @@ func Unpack(input string) (string, error) {
 			}
 			result.WriteString(repeatRune(lastSymbol, intValue))
 			lastSymbol = ""
+			escaped = false
 		} else {
 			if !escaped && string(RuneSymbol) == "\\" {
 				escaped = true
@@ -47,6 +48,9 @@ func Unpack(input string) (string, error) {
 			result.WriteString(lastSymbol)
 			lastSymbol = string(RuneSymbol)
 		}
+	}
+	if escaped {
+		return "", ErrInvalidString
 	}
 	result.WriteString(lastSymbol)
 
