@@ -6,7 +6,10 @@ import (
 	"strings"
 )
 
-var re = regexp.MustCompile(`^[[:punct:]]+|[[:punct:]]+$`)
+var (
+	re       = regexp.MustCompile(`^[[:punct:]]+|[[:punct:]]+$`)
+	dashWord = regexp.MustCompile(`^[-]{2,}$`)
+)
 
 func Top10(input string) []string {
 	words := make(map[string]int)
@@ -14,10 +17,18 @@ func Top10(input string) []string {
 
 	for _, word := range strings.Fields(input) {
 		lowerCaseWord := strings.ToLower(word)
-		lowerCaseWithoutPuncts := string(re.ReplaceAll([]byte(lowerCaseWord), []byte{}))
+		var lowerCaseWithoutPuncts string
+
+		if !dashWord.Match([]byte(lowerCaseWord)) {
+			lowerCaseWithoutPuncts = string(re.ReplaceAll([]byte(lowerCaseWord), []byte{}))
+		} else {
+			lowerCaseWithoutPuncts = lowerCaseWord
+		}
+
 		if lowerCaseWithoutPuncts == "" {
 			continue
 		}
+
 		words[lowerCaseWithoutPuncts]++
 		if words[lowerCaseWithoutPuncts] == 1 {
 			wordsSlice = append(wordsSlice, lowerCaseWithoutPuncts)
@@ -32,5 +43,8 @@ func Top10(input string) []string {
 			(words[wordsSlice[i]] == words[wordsSlice[j]] && wordsSlice[i] < wordsSlice[j])
 	})
 
+	if len(wordsSlice) < 10 {
+		return wordsSlice
+	}
 	return wordsSlice[:10]
 }
