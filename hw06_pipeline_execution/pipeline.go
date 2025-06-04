@@ -14,7 +14,6 @@ type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	currentIn := in
-	initial := true
 	skip := atomic.Bool{}
 	go func() {
 		<-done
@@ -22,24 +21,19 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	}()
 
 	for _, stageItem := range stages {
-		if initial {
-			currentIn = func(in In) (out Out) {
-				middlewareChannel := make(Bi, 1)
-				go func() {
-					defer close(middlewareChannel)
-					for data := range in {
-						if !skip.Load() {
-							middlewareChannel <- data
-						}
+		currentIn = func(in In) (out Out) {
+			middlewareChannel := make(Bi, 1)
+			go func() {
+				defer close(middlewareChannel)
+				for data := range in {
+					if !skip.Load() {
+						middlewareChannel <- data
 					}
-				}()
+				}
+			}()
 
-				return stageItem(middlewareChannel)
-			}(currentIn)
-			initial = false
-		} else {
-			currentIn = stageItem(currentIn)
-		}
+			return stageItem(middlewareChannel)
+		}(currentIn)
 	}
 
 	return currentIn
