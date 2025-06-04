@@ -14,6 +14,10 @@ func Run(tasks []Task, gorutineCount, errorsCountLimit int) error {
 		gorutineCount = len(tasks)
 	}
 
+	if errorsCountLimit == 0 {
+		errorsCountLimit = len(tasks) + 1
+	}
+
 	tasksChannel := make(chan Task, gorutineCount)
 
 	outputs := make([]<-chan error, gorutineCount)
