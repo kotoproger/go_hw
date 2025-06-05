@@ -65,6 +65,8 @@ func TestRun(t *testing.T) {
 
 	t.Run("tasks without errors", func(t *testing.T) {
 		tasksCount := 50
+		runningChannel := make(chan struct{}, tasksCount)
+		continueChannel := make(chan struct{})
 		tasks := make([]Task, 0, tasksCount)
 
 		var runTasksCount int32
@@ -72,9 +74,10 @@ func TestRun(t *testing.T) {
 
 		for i := 0; i < tasksCount; i++ {
 			tasks = append(tasks, func() error {
+				runningChannel <- struct{}{}
+				<-continueChannel
 				atomic.AddInt32(&runTasksCount, 1)
 				gorutines.Store(goid.Get(), goid.Get())
-
 				return nil
 			})
 		}
@@ -82,17 +85,28 @@ func TestRun(t *testing.T) {
 		workersCount := 5
 		maxErrorsCount := 1
 
-		err := Run(tasks, workersCount, maxErrorsCount)
+		wg := sync.WaitGroup{}
+		wg.Add(1)
+		var err error
+		go func() {
+			defer wg.Done()
+			err = Run(tasks, workersCount, maxErrorsCount)
+		}()
+
+		require.Eventually(t, func() bool {
+			if len(runningChannel) == workersCount {
+				close(continueChannel)
+				return true
+			}
+			return false
+		}, time.Second, time.Millisecond, "Used less or great goroutines than workers count")
+
+		wg.Wait()
 
 		require.NoError(t, err)
 
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 
-		require.Eventually(t, func() bool {
-			count := 0
-			gorutines.Range(func(_, _ any) bool { count++; return true })
-			return count == workersCount
-		}, time.Second, time.Millisecond, "Used less or great goroutines than workers count")
 		count := 0
 		gorutines.Range(func(_, _ any) bool { count++; return true })
 
