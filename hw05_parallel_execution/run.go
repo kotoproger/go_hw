@@ -10,6 +10,7 @@ type Task func() error
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, gorutineCount, errorsCountLimit int) error {
+	gorutineCount++
 	if gorutineCount == 0 {
 		gorutineCount = len(tasks)
 	}

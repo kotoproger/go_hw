@@ -93,10 +93,10 @@ func TestRun(t *testing.T) {
 			count := 0
 			gorutines.Range(func(key, value any) bool { count++; return true })
 			return count == workersCount
-		}, time.Second, time.Millisecond)
+		}, time.Second, time.Millisecond, "Used less or great goroutines than workers count")
 		count := 0
 		gorutines.Range(func(key, value any) bool { count++; return true })
 
-		require.Equal(t, workersCount, count, "Used less goroutines than workers count")
+		require.Equal(t, workersCount, count, "Used less or great goroutines than workers count")
 	})
 }
