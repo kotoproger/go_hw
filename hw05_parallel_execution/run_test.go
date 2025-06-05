@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/petermattis/goid"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/goleak"
 )
@@ -66,15 +68,14 @@ func TestRun(t *testing.T) {
 		tasks := make([]Task, 0, tasksCount)
 
 		var runTasksCount int32
-		var sumTime time.Duration
+		var gorutines sync.Map
 
 		for i := 0; i < tasksCount; i++ {
-			taskSleep := time.Millisecond * time.Duration(rand.Intn(100))
-			sumTime += taskSleep
 
 			tasks = append(tasks, func() error {
-				time.Sleep(taskSleep)
 				atomic.AddInt32(&runTasksCount, 1)
+				gorutines.Store(goid.Get(), goid.Get())
+
 				return nil
 			})
 		}
@@ -82,12 +83,20 @@ func TestRun(t *testing.T) {
 		workersCount := 5
 		maxErrorsCount := 1
 
-		start := time.Now()
 		err := Run(tasks, workersCount, maxErrorsCount)
-		elapsedTime := time.Since(start)
+
 		require.NoError(t, err)
 
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
-		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
+
+		require.Eventually(t, func() bool {
+			count := 0
+			gorutines.Range(func(key, value any) bool { count++; return true })
+			return count == workersCount
+		}, time.Second, time.Millisecond)
+		count := 0
+		gorutines.Range(func(key, value any) bool { count++; return true })
+
+		require.Equal(t, workersCount, count, "Used less goroutines than workers count")
 	})
 }
