@@ -1,9 +1,5 @@
 package hw06pipelineexecution
 
-import (
-	"sync/atomic"
-)
-
 type (
 	In  = <-chan interface{}
 	Out = In
@@ -14,25 +10,31 @@ type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	currentIn := in
-	skip := atomic.Bool{}
-	go func() {
-		<-done
-		skip.Store(true)
-	}()
 
 	for _, stageItem := range stages {
 		currentIn = func(in In) (out Out) {
 			middlewareChannel := make(Bi, 1)
-			go func() {
-				defer close(middlewareChannel)
-				for data := range in {
-					if !skip.Load() {
-						middlewareChannel <- data
+
+			stageOutput := stageItem(in)
+
+			go func(in In, out Bi) {
+				for {
+					select {
+					case <-done:
+						close(out)
+						for range in { //nolint:revive
+						}
+						return
+					case data, ok := <-in:
+						if !ok {
+							close(out)
+							return
+						}
+						out <- data
 					}
 				}
-			}()
-
-			return stageItem(middlewareChannel)
+			}(stageOutput, middlewareChannel)
+			return middlewareChannel
 		}(currentIn)
 	}
 
