@@ -89,11 +89,6 @@ func TestRun(t *testing.T) {
 
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 
-		require.Eventually(t, func() bool {
-			count := 0
-			gorutines.Range(func(key, value any) bool { count++; return true })
-			return count == workersCount
-		}, time.Second, time.Millisecond, "Used less or great goroutines than workers count")
 		count := 0
 		gorutines.Range(func(key, value any) bool { count++; return true })
 
