@@ -71,7 +71,6 @@ func TestRun(t *testing.T) {
 		var gorutines sync.Map
 
 		for i := 0; i < tasksCount; i++ {
-
 			tasks = append(tasks, func() error {
 				atomic.AddInt32(&runTasksCount, 1)
 				gorutines.Store(goid.Get(), goid.Get())
@@ -91,11 +90,11 @@ func TestRun(t *testing.T) {
 
 		require.Eventually(t, func() bool {
 			count := 0
-			gorutines.Range(func(key, value any) bool { count++; return true })
+			gorutines.Range(func(_, _ any) bool { count++; return true })
 			return count == workersCount
 		}, time.Second, time.Millisecond, "Used less or great goroutines than workers count")
 		count := 0
-		gorutines.Range(func(key, value any) bool { count++; return true })
+		gorutines.Range(func(_, _ any) bool { count++; return true })
 
 		require.Equal(t, workersCount, count, "Used less or great goroutines than workers count")
 	})
