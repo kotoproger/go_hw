@@ -22,6 +22,7 @@ linters-settings:
         allow:
           - $gostd
           - github.com/stretchr/testify
+          - github.com/petermattis/goid
 issues:
   exclude-rules:
     - path: _test\.go
