@@ -57,7 +57,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}()
 
 	if limit == 0 {
-
 		limit = fileStat.Size() - offset
 	}
 

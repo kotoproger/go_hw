@@ -111,7 +111,7 @@ func TestCopy(t *testing.T) {
 		assert.NotNil(t, copyErr)
 	})
 
-	t.Run("random file", func(t *testing.T) {
+	t.Run("iregular file", func(t *testing.T) {
 		toFileName, err := createTempFile(0, 100000)
 		if err != nil {
 			panic(err)
