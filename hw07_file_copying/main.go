@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 )
 
 var (
@@ -20,15 +19,8 @@ func init() {
 
 func main() {
 	flag.Parse()
-	fileStat, err := os.Stat("testdata/input.txt")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	if limit == 0 {
-		limit = fileStat.Size() - offset
-	}
-	err = Copy(from, to, offset, limit)
+
+	err := Copy(from, to, offset, limit)
 	if err != nil {
 		fmt.Println(err)
 		return
