@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/schollz/progressbar/v3"
 )
 
 var (
@@ -27,12 +29,13 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	go retranslateData(from, to, limit, progressChannel)
 
+	bar := progressbar.DefaultBytes(limit)
 	for data := range progressChannel {
 		switch data.(type) {
 		case error:
 			return fmt.Errorf("copy data: %w", data.(error))
 		case int:
-			fmt.Println("process bytes ", data)
+			bar.Add(data.(int))
 		default:
 			fmt.Errorf("unexpected data type %T", data)
 		}
