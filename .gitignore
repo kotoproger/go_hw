@@ -26,3 +26,11 @@ ehthumbs.db
 Thumbs.db
 .vscode/
 *.bak
+hw07_file_copying/testdata/*
+!hw07_file_copying/testdata/input.txt
+!hw07_file_copying/testdata/out_offset0_limit0.txt
+!hw07_file_copying/testdata/out_offset0_limit10.txt
+!hw07_file_copying/testdata/out_offset0_limit1000.txt
+!hw07_file_copying/testdata/out_offset0_limit10000.txt
+!hw07_file_copying/testdata/out_offset100_limit1000.txt
+!hw07_file_copying/testdata/out_offset6000_limit1000.txt
