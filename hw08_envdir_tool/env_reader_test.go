@@ -1,6 +1,9 @@
 package main
 
 import (
+	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"testing"
 
@@ -78,6 +81,41 @@ func TestReadDirSuccess(t *testing.T) {
 			vars, err := ReadDir(basePath + testCase.dir)
 			assert.Nil(t, err)
 			assert.Equal(t, testCase.expected, vars)
+		})
+	}
+}
+
+func TestReadDirFailure(t *testing.T) {
+	basePath, err := os.Getwd()
+	os.Chmod(basePath+"/testdata/failure/FOO", 0o055)
+	defer os.Chmod(basePath+"/testdata/failure/FOO", 0o755)
+
+	if err != nil {
+		panic(err)
+	}
+	testCases := []struct {
+		name string
+		dir  string
+	}{
+		{
+			name: "directory not exists",
+			dir:  "/testdata/not_exist",
+		},
+		{
+			name: "read file error",
+			dir:  "/testdata/failure",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			fmt.Println(basePath + testCase.dir)
+			result, err := ReadDir(basePath + testCase.dir)
+
+			var got *fs.PathError
+			assert.True(t, errors.As(err, &got))
+			var empty Environment
+			assert.Equal(t, empty, result)
 		})
 	}
 }
