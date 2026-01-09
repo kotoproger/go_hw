@@ -34,12 +34,18 @@ func ReadDir(dir string) (Environment, error) {
 		}
 
 		value, readFileError := readFirstLine(dir + "/" + name)
-		fmt.Println(dir + "/" + name)
 		if readFileError != nil {
 			return nil, fmt.Errorf("read dir entry: %w", readFileError)
 		}
 
-		value = strings.ReplaceAll(value, "\x00", "\n")
+		value =
+			strings.TrimRight(
+				strings.TrimRight(
+					strings.ReplaceAll(value, "\x00", "\n"),
+					" ",
+				),
+				"\t",
+			)
 		if value == "" {
 			result[name] = EnvValue{NeedRemove: true}
 		} else {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 )
 
@@ -12,11 +13,15 @@ func RunCmd(cmd []string, env Environment, ioErr io.Writer, ioOut io.Writer, rea
 	if len(cmd) == 0 {
 		return 0, fmt.Errorf("wrong command parameters count")
 	}
+	var envErr error
 	command := exec.Command(cmd[0], cmd[1:]...) //nolint: gosec
 	command.Stderr = ioErr
 	command.Stdin = reader
 	command.Stdout = ioOut
-	command.Env = composeEnvSlice(env)
+	command.Env, envErr = prepareEnvs(env)
+	if envErr != nil {
+		return 0, fmt.Errorf("prepare environment variables: %w", envErr)
+	}
 	err = command.Start()
 	if err != nil {
 		return 0, fmt.Errorf("command start: %w", err)
@@ -33,13 +38,22 @@ func RunCmd(cmd []string, env Environment, ioErr io.Writer, ioOut io.Writer, rea
 	return command.ProcessState.ExitCode(), nil
 }
 
-func composeEnvSlice(env Environment) []string {
-	envSlice := make([]string, 0, len(env))
+func prepareEnvs(env Environment) ([]string, error) {
 	for key, value := range env {
-		if !value.NeedRemove {
-			envSlice = append(envSlice, fmt.Sprintf("%s=%s", key, value.Value))
+		if value.NeedRemove {
+			err := os.Unsetenv(key)
+			if err != nil {
+				return nil, fmt.Errorf("unset environment variable: %w", err)
+			}
+
+			continue
+		}
+
+		err := os.Setenv(key, value.Value)
+		if err != nil {
+			return nil, fmt.Errorf("unset environment variable: %w", err)
 		}
 	}
 
-	return envSlice
+	return os.Environ(), nil
 }

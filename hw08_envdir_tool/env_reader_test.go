@@ -25,8 +25,8 @@ func TestReadDirSuccess(t *testing.T) {
 					NeedRemove: false,
 				},
 				"EMPTY": EnvValue{
-					Value:      " ",
-					NeedRemove: false,
+					Value:      "",
+					NeedRemove: true,
 				},
 				"FOO": EnvValue{
 					Value:      "   foo\nwith new line",
@@ -47,8 +47,8 @@ func TestReadDirSuccess(t *testing.T) {
 			dir:  "/testdata/recurse",
 			expected: Environment{
 				"EMPTY": EnvValue{
-					Value:      " ",
-					NeedRemove: false,
+					Value:      "",
+					NeedRemove: true,
 				},
 				"FOO": EnvValue{
 					Value:      "   foo\nwith new line",
