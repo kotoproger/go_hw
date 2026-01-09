@@ -38,14 +38,13 @@ func ReadDir(dir string) (Environment, error) {
 			return nil, fmt.Errorf("read dir entry: %w", readFileError)
 		}
 
-		value =
+		value = strings.TrimRight(
 			strings.TrimRight(
-				strings.TrimRight(
-					strings.ReplaceAll(value, "\x00", "\n"),
-					" ",
-				),
-				"\t",
-			)
+				strings.ReplaceAll(value, "\x00", "\n"),
+				" ",
+			),
+			"\t",
+		)
 		if value == "" {
 			result[name] = EnvValue{NeedRemove: true}
 		} else {
