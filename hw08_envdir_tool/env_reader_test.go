@@ -70,7 +70,7 @@ func TestReadDirSuccess(t *testing.T) {
 
 	for _, testCase := range cases {
 		basePath, err := os.Getwd()
-		os.Mkdir(basePath+"/testdata/empty", 0755)
+		os.Mkdir(basePath+"/testdata/empty", 0o755)
 		if err != nil {
 			panic(err)
 		}
