@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
-	"syscall"
 )
 
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
-func RunCmd(cmd []string, env Environment, ioErr io.Writer, ioOut io.Writer, reader io.Reader, osSignals <-chan syscall.Signal) (returnCode int, err error) {
+func RunCmd(cmd []string, env Environment, ioErr io.Writer, ioOut io.Writer, reader io.Reader) (returnCode int, err error) { //nolint: lll
 	if len(cmd) == 0 {
-		return 0, fmt.Errorf("Wrong command parameters count")
+		return 0, fmt.Errorf("wrong command parameters count")
 	}
-	command := exec.Command(cmd[0], cmd[1:]...)
+	command := exec.Command(cmd[0], cmd[1:]...) //nolint: gosec
 	command.Stderr = ioErr
 	command.Stdin = reader
 	command.Stdout = ioOut
@@ -23,22 +22,7 @@ func RunCmd(cmd []string, env Environment, ioErr io.Writer, ioOut io.Writer, rea
 		return 0, fmt.Errorf("command start: %w", err)
 	}
 
-	// не работает передача сигнала (((
-	//sigChan := make(chan struct{})
-	//go func(closer <-chan struct{}, osSignal <-chan syscall.Signal) {
-	//	select {
-	//	case <-closer:
-	//		return
-	//	case signal := <-osSignal:
-	//		err := syscall.Kill(command.Process.Pid, signal
-	//		if err != nil {
-	//			fmt.Println(err)
-	//		}
-	//	}
-	//}(sigChan, osSignals)
-
 	err = command.Wait()
-	//close(sigChan)
 
 	var exitError *exec.ExitError
 
