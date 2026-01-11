@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/kotoproger/go_hw/hw09structvalidator"
+	"github.com/kotoproger/go_hw/hw09structvalidator/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,12 +13,12 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 	testCases := []struct {
 		name       string
 		value      interface{}
-		validators []hw09structvalidator.ConstraintInterface
+		validators []core.ConstraintInterface
 	}{
 		{
 			name:  "string",
 			value: "string",
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -30,7 +30,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "bool",
 			value: false,
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -43,7 +43,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "complex64",
 			value: complex64(123),
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -56,7 +56,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "complex128",
 			value: complex128(123),
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -69,7 +69,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "array",
 			value: [1]any{},
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -81,7 +81,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "chan",
 			value: make(chan any),
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -93,7 +93,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "func",
 			value: func() {},
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -106,7 +106,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "map",
 			value: map[any]any{},
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -118,7 +118,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "slice",
 			value: make([]any, 1),
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -130,7 +130,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "struct",
 			value: struct{}{},
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
@@ -143,7 +143,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "int",
 			value: 10,
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
 				NewLengthConstraint(),
@@ -152,7 +152,7 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		{
 			name:  "float",
 			value: 10.5,
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMinIntConstraint(),
 				NewLengthConstraint(),
@@ -165,12 +165,12 @@ func TestMaxMinConstraintErrUnsupportedValueType(t *testing.T) { //nolint:funlen
 		t.Run(testCase.name, func(t *testing.T) {
 			for _, validator := range testCase.validators {
 				t.Run(
-					fmt.Sprintf("%s(%s)", validator.ConstraintName(), validator.ConstraintSubName()),
+					fmt.Sprintf("%s(%s)", validator.ConstraintName(), validator.KindTypes()),
 					func(t *testing.T) {
 						constraints, err := validator.Validate(reflect.ValueOf(testCase.value), "6")
 
 						assert.Nil(t, constraints)
-						assert.Equal(t, hw09structvalidator.ErrUnsupportedValueType, err)
+						assert.Equal(t, core.ErrUnsupportedValueType, err)
 					},
 				)
 			}
@@ -183,13 +183,13 @@ func TestMaxMinConstraintErrUnsupportedParam(t *testing.T) {
 		name       string
 		value      interface{}
 		param      string
-		validators []hw09structvalidator.ConstraintInterface
+		validators []core.ConstraintInterface
 	}{
 		{
 			name:  "int value - string parameter",
 			value: 10,
 			param: "int",
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMinIntConstraint(),
 				NewMaxUintConstraint(),
@@ -200,7 +200,7 @@ func TestMaxMinConstraintErrUnsupportedParam(t *testing.T) {
 			name:  "int value - float parameter",
 			value: 10,
 			param: "1.1",
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMinIntConstraint(),
 				NewMaxUintConstraint(),
@@ -212,7 +212,7 @@ func TestMaxMinConstraintErrUnsupportedParam(t *testing.T) {
 			name:  "uint value - string parameter",
 			value: uint(10),
 			param: "int",
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMinIntConstraint(),
 				NewMaxUintConstraint(),
@@ -223,7 +223,7 @@ func TestMaxMinConstraintErrUnsupportedParam(t *testing.T) {
 			name:  "uint value - float parameter",
 			value: uint(10),
 			param: "1.1",
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxIntConstraint(),
 				NewMinIntConstraint(),
 				NewMaxUintConstraint(),
@@ -235,7 +235,7 @@ func TestMaxMinConstraintErrUnsupportedParam(t *testing.T) {
 			name:  "float value - string parameter",
 			value: 10.5,
 			param: "int",
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewMaxFloatConstraint(),
 				NewMinFloatConstraint(),
 			},
@@ -246,11 +246,11 @@ func TestMaxMinConstraintErrUnsupportedParam(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			for _, validator := range testCase.validators {
 				t.Run(
-					fmt.Sprintf("%s(%s)", validator.ConstraintName(), validator.ConstraintSubName()),
+					fmt.Sprintf("%s(%s)", validator.ConstraintName(), validator.KindTypes()),
 					func(t *testing.T) {
 						constraints, err := validator.Validate(reflect.ValueOf(testCase.value), testCase.param)
 
-						var expectedErr hw09structvalidator.ErrUnsupportedConstraintParams
+						var expectedErr core.ErrUnsupportedConstraintParams
 						assert.Nil(t, constraints)
 						assert.ErrorAs(t, err, &expectedErr)
 					},
@@ -265,7 +265,7 @@ func TestMaxConstraintValid(t *testing.T) {
 		name      string
 		value     interface{}
 		param     string
-		validator hw09structvalidator.ConstraintInterface
+		validator core.ConstraintInterface
 	}{
 		{
 			name:      "int 5 = 5",
@@ -363,7 +363,7 @@ func TestMaxConstraintInvalid(t *testing.T) {
 		name      string
 		value     interface{}
 		param     string
-		validator hw09structvalidator.ConstraintInterface
+		validator core.ConstraintInterface
 	}{
 		{
 			name:      "int 5 !< 4",
@@ -427,7 +427,7 @@ func TestMinConstraintValid(t *testing.T) {
 		name      string
 		value     interface{}
 		param     string
-		validator hw09structvalidator.ConstraintInterface
+		validator core.ConstraintInterface
 	}{
 		{
 			name:      "int 5 = 5",
@@ -525,7 +525,7 @@ func TestMinConstraintInvalid(t *testing.T) {
 		name      string
 		value     interface{}
 		param     string
-		validator hw09structvalidator.ConstraintInterface
+		validator core.ConstraintInterface
 	}{
 		{
 			name:      "int 5 !> 6",
@@ -606,7 +606,7 @@ func TestLengthConstraintUnsupportedParam(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			constraints, err := NewLengthConstraint().Validate(reflect.ValueOf("asdads"), tc.params)
 
-			var expectedErr hw09structvalidator.ErrUnsupportedConstraintParams
+			var expectedErr core.ErrUnsupportedConstraintParams
 			assert.ErrorAs(t, err, &expectedErr)
 			assert.Nil(t, constraints)
 		})

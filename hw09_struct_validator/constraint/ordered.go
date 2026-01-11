@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/kotoproger/go_hw/hw09structvalidator"
+	"github.com/kotoproger/go_hw/hw09structvalidator/core"
 )
 
 var (
@@ -19,25 +19,23 @@ type orderedConstraint[T cmp.Ordered] struct {
 	baseConstraint[T, T]
 }
 
-func NewMaxIntConstraint() hw09structvalidator.ConstraintInterface {
+func NewMaxIntConstraint() core.ConstraintInterface {
 	return newIntConstraint(
 		func(source int64, target int64) bool {
 			return source > target
 		},
 		"max",
-		"int",
 		ErrValueToLarge,
 		"max value %d, actual value %d: %w",
 	)
 }
 
-func NewMinIntConstraint() hw09structvalidator.ConstraintInterface {
+func NewMinIntConstraint() core.ConstraintInterface {
 	return newIntConstraint(
 		func(source int64, target int64) bool {
 			return source < target
 		},
 		"min",
-		"int",
 		ErrValueToSmall,
 		"min value %d, actual value %d: %w",
 	)
@@ -46,11 +44,10 @@ func NewMinIntConstraint() hw09structvalidator.ConstraintInterface {
 func newIntConstraint(
 	comp func(source int64, target int64) bool,
 	name string,
-	subname string,
 	baseError error,
 	message string,
-) hw09structvalidator.ConstraintInterface {
-	return orderedConstraint[int64]{
+) core.ConstraintInterface {
+	return &orderedConstraint[int64]{
 		baseConstraint[int64, int64]{
 			kindTypes: []reflect.Kind{
 				reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
@@ -64,31 +61,28 @@ func newIntConstraint(
 			compareValues:   comp,
 			messageTemplate: message,
 			name:            name,
-			subname:         subname,
 			baseError:       baseError,
 		},
 	}
 }
 
-func NewMaxUintConstraint() hw09structvalidator.ConstraintInterface {
+func NewMaxUintConstraint() core.ConstraintInterface {
 	return newUintConstraint(
 		func(source uint64, target uint64) bool {
 			return source > target
 		},
 		"max",
-		"uint",
 		ErrValueToLarge,
 		"max value %d, actual value %d: %w",
 	)
 }
 
-func NewMinUintConstraint() hw09structvalidator.ConstraintInterface {
+func NewMinUintConstraint() core.ConstraintInterface {
 	return newUintConstraint(
 		func(source uint64, target uint64) bool {
 			return source < target
 		},
 		"min",
-		"uint",
 		ErrValueToSmall,
 		"min value %d, actual value %d: %w",
 	)
@@ -97,11 +91,10 @@ func NewMinUintConstraint() hw09structvalidator.ConstraintInterface {
 func newUintConstraint(
 	comp func(source uint64, target uint64) bool,
 	name string,
-	subname string,
 	baseError error,
 	message string,
-) hw09structvalidator.ConstraintInterface {
-	return orderedConstraint[uint64]{
+) core.ConstraintInterface {
+	return &orderedConstraint[uint64]{
 		baseConstraint[uint64, uint64]{
 			kindTypes: []reflect.Kind{
 				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
@@ -115,7 +108,6 @@ func newUintConstraint(
 			compareValues:   comp,
 			messageTemplate: message,
 			name:            name,
-			subname:         subname,
 			baseError:       baseError,
 		},
 	}
@@ -124,11 +116,10 @@ func newUintConstraint(
 func newFloatConstraint(
 	comp func(source float64, target float64) bool,
 	name string,
-	subname string,
 	baseError error,
 	message string,
-) hw09structvalidator.ConstraintInterface {
-	return orderedConstraint[float64]{
+) core.ConstraintInterface {
+	return &orderedConstraint[float64]{
 		baseConstraint[float64, float64]{
 			kindTypes: []reflect.Kind{
 				reflect.Float32, reflect.Float64,
@@ -142,38 +133,35 @@ func newFloatConstraint(
 			compareValues:   comp,
 			messageTemplate: message,
 			name:            name,
-			subname:         subname,
 			baseError:       baseError,
 		},
 	}
 }
 
-func NewMaxFloatConstraint() hw09structvalidator.ConstraintInterface {
+func NewMaxFloatConstraint() core.ConstraintInterface {
 	return newFloatConstraint(
 		func(source float64, target float64) bool {
 			return source > target
 		},
 		"max",
-		"float",
 		ErrValueToLarge,
 		"max value %d, actual value %d: %w",
 	)
 }
 
-func NewMinFloatConstraint() hw09structvalidator.ConstraintInterface {
+func NewMinFloatConstraint() core.ConstraintInterface {
 	return newFloatConstraint(
 		func(source float64, target float64) bool {
 			return source < target
 		},
 		"min",
-		"float",
 		ErrValueToSmall,
 		"min value %d, actual value %d: %w",
 	)
 }
 
-func NewLengthConstraint() hw09structvalidator.ConstraintInterface {
-	return orderedConstraint[int]{
+func NewLengthConstraint() core.ConstraintInterface {
+	return &orderedConstraint[int]{
 		baseConstraint[int, int]{
 			kindTypes: []reflect.Kind{
 				reflect.String, reflect.Slice, reflect.Chan, reflect.Array, reflect.Map,
@@ -187,18 +175,17 @@ func NewLengthConstraint() hw09structvalidator.ConstraintInterface {
 			},
 			messageTemplate: "expected %d length but got %d: %w",
 			name:            "len",
-			subname:         "int",
 			baseError:       ErrInvalidValueLength,
 		},
 	}
 }
 
 func init() {
-	hw09structvalidator.RegisterConstraint(NewMaxIntConstraint())
-	hw09structvalidator.RegisterConstraint(NewMinIntConstraint())
-	hw09structvalidator.RegisterConstraint(NewMaxFloatConstraint())
-	hw09structvalidator.RegisterConstraint(NewMinFloatConstraint())
-	hw09structvalidator.RegisterConstraint(NewLengthConstraint())
-	hw09structvalidator.RegisterConstraint(NewMaxUintConstraint())
-	hw09structvalidator.RegisterConstraint(NewMinUintConstraint())
+	core.RegisterConstraint(NewMaxIntConstraint())
+	core.RegisterConstraint(NewMinIntConstraint())
+	core.RegisterConstraint(NewMaxFloatConstraint())
+	core.RegisterConstraint(NewMinFloatConstraint())
+	core.RegisterConstraint(NewLengthConstraint())
+	core.RegisterConstraint(NewMaxUintConstraint())
+	core.RegisterConstraint(NewMinUintConstraint())
 }

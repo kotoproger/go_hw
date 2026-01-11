@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"slices"
 
-	"github.com/kotoproger/go_hw/hw09structvalidator"
+	"github.com/kotoproger/go_hw/hw09structvalidator/core"
 )
 
 type baseConstraint[T any, S any] struct {
@@ -15,28 +15,27 @@ type baseConstraint[T any, S any] struct {
 	compareValues   func(source T, target S) bool
 	messageTemplate string
 	name            string
-	subname         string
 	baseError       error
 }
 
-func (g baseConstraint[T, S]) ConstraintName() string {
+func (g *baseConstraint[T, S]) ConstraintName() string {
 	return g.name
 }
 
-func (g baseConstraint[T, S]) ConstraintSubName() string {
-	return g.subname
+func (g *baseConstraint[T, S]) KindTypes() []reflect.Kind {
+	return g.kindTypes
 }
 
-func (g baseConstraint[T, S]) Validate(value reflect.Value, params string) (constraints []error, err error) {
+func (g *baseConstraint[T, S]) Validate(value reflect.Value, params string) (constraints []error, err error) {
 	if !slices.Contains(g.kindTypes, value.Type().Kind()) {
-		err = hw09structvalidator.ErrUnsupportedValueType
+		err = core.ErrUnsupportedValueType
 		return
 	}
 
 	preparedValue := g.prepareValue(value)
 	preparedExpects, prepareErr := g.prepareParam(params)
 	if prepareErr != nil {
-		err = hw09structvalidator.ErrUnsupportedConstraintParams(prepareErr)
+		err = core.ErrUnsupportedConstraintParams(prepareErr)
 
 		return
 	}

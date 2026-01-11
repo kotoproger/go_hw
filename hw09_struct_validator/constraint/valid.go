@@ -10,7 +10,7 @@ package constraint
 //	baseConstraint[any, any]
 //}
 //
-//func NewValidConstraint() hw09structvalidator.ConstraintInterface {
+// func NewValidConstraint() hw09structvalidator.ConstraintInterface {
 //	return validConstraint{
 //		baseConstraint[any, any]{
 //			kindTypes: []reflect.Kind{reflect.Struct},

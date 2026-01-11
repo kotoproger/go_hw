@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+
+	"github.com/kotoproger/go_hw/hw09structvalidator/constraint"
+	"github.com/stretchr/testify/assert"
 )
 
 type UserRole string
@@ -42,7 +45,24 @@ func TestValidate(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			// Place your code here.
+			in:          App{Version: "1.0.0"},
+			expectedErr: nil,
+		},
+		{
+			in:          App{Version: "1.0.0,3"},
+			expectedErr: constraint.ErrInvalidValueLength,
+		},
+		{
+			in:          App{Version: "1.0."},
+			expectedErr: constraint.ErrInvalidValueLength,
+		},
+		{
+			in:          Response{Code: 300, Body: "body"},
+			expectedErr: constraint.ErrValueIsNotAllowed,
+		},
+		{
+			in:          Response{Code: 200, Body: "body"},
+			expectedErr: nil,
 		},
 		// ...
 		// Place your code here.
@@ -53,7 +73,12 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 
-			// Place your code here.
+			err := Validate(tt.in)
+			if tt.expectedErr == nil {
+				assert.Equal(t, 0, len(err))
+			} else {
+				assert.ErrorIs(t, err[0].Err, tt.expectedErr)
+			}
 			_ = tt
 		})
 	}

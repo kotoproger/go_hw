@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kotoproger/go_hw/hw09structvalidator"
+	"github.com/kotoproger/go_hw/hw09structvalidator/core"
 )
 
 var ErrValueIsNotAllowed = errors.New("value is not allowed")
@@ -16,8 +16,8 @@ type comparableConstraint[T comparable] struct {
 	baseConstraint[T, []T]
 }
 
-func NewInStringConstraint() hw09structvalidator.ConstraintInterface {
-	return comparableConstraint[string]{
+func NewInStringConstraint() core.ConstraintInterface {
+	return &comparableConstraint[string]{
 		baseConstraint[string, []string]{
 			kindTypes: []reflect.Kind{reflect.String},
 			prepareValue: func(value reflect.Value) string {
@@ -31,14 +31,13 @@ func NewInStringConstraint() hw09structvalidator.ConstraintInterface {
 			},
 			messageTemplate: "actual value %s, allowed (%s): %w",
 			name:            "in",
-			subname:         "string",
 			baseError:       ErrValueIsNotAllowed,
 		},
 	}
 }
 
-func NewInIntConstraint() hw09structvalidator.ConstraintInterface {
-	return comparableConstraint[int64]{
+func NewInIntConstraint() core.ConstraintInterface {
+	return &comparableConstraint[int64]{
 		baseConstraint[int64, []int64]{
 			kindTypes: []reflect.Kind{
 				reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
@@ -65,14 +64,13 @@ func NewInIntConstraint() hw09structvalidator.ConstraintInterface {
 			},
 			messageTemplate: "actual value %s, allowed (%s): %w",
 			name:            "in",
-			subname:         "int",
 			baseError:       ErrValueIsNotAllowed,
 		},
 	}
 }
 
-func NewInFloatConstraint() hw09structvalidator.ConstraintInterface {
-	return comparableConstraint[float64]{
+func NewInFloatConstraint() core.ConstraintInterface {
+	return &comparableConstraint[float64]{
 		baseConstraint[float64, []float64]{
 			kindTypes: []reflect.Kind{
 				reflect.Float32, reflect.Float64,
@@ -98,14 +96,13 @@ func NewInFloatConstraint() hw09structvalidator.ConstraintInterface {
 			},
 			messageTemplate: "actual value %s, allowed (%s): %w",
 			name:            "in",
-			subname:         "float",
 			baseError:       ErrValueIsNotAllowed,
 		},
 	}
 }
 
 func init() {
-	hw09structvalidator.RegisterConstraint(NewInStringConstraint())
-	hw09structvalidator.RegisterConstraint(NewInIntConstraint())
-	hw09structvalidator.RegisterConstraint(NewInFloatConstraint())
+	core.RegisterConstraint(NewInStringConstraint())
+	core.RegisterConstraint(NewInIntConstraint())
+	core.RegisterConstraint(NewInFloatConstraint())
 }

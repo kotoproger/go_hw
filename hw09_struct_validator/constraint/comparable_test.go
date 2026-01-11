@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/kotoproger/go_hw/hw09structvalidator"
+	"github.com/kotoproger/go_hw/hw09structvalidator/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,12 +13,12 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 	testCases := []struct {
 		name       string
 		value      interface{}
-		validators []hw09structvalidator.ConstraintInterface
+		validators []core.ConstraintInterface
 	}{
 		{
 			name:  "bool",
 			value: false,
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
@@ -27,7 +27,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "complex64",
 			value: complex64(123),
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
@@ -36,7 +36,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "complex128",
 			value: complex128(123),
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
@@ -45,7 +45,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "array",
 			value: [1]any{},
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
@@ -54,7 +54,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "chan",
 			value: make(chan any),
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
@@ -63,7 +63,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "func",
 			value: func() {},
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
@@ -72,7 +72,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "map",
 			value: map[any]any{},
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
@@ -81,7 +81,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "slice",
 			value: make([]any, 1),
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
@@ -90,7 +90,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "struct",
 			value: struct{}{},
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
@@ -99,7 +99,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "string",
 			value: "asdsd",
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInFloatConstraint(),
 				NewInIntConstraint(),
 			},
@@ -107,7 +107,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "int",
 			value: 10,
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInFloatConstraint(),
 			},
@@ -115,7 +115,7 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		{
 			name:  "float",
 			value: 10.5,
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInStringConstraint(),
 				NewInIntConstraint(),
 			},
@@ -125,12 +125,12 @@ func TestComparableUnsupportedValueType(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			for _, validator := range testCase.validators {
 				t.Run(
-					fmt.Sprintf("%s(%s)", validator.ConstraintName(), validator.ConstraintSubName()),
+					fmt.Sprintf("%s(%s)", validator.ConstraintName(), validator.KindTypes()),
 					func(t *testing.T) {
 						constraints, err := validator.Validate(reflect.ValueOf(testCase.value), "6")
 
 						assert.Nil(t, constraints)
-						assert.Equal(t, hw09structvalidator.ErrUnsupportedValueType, err)
+						assert.Equal(t, core.ErrUnsupportedValueType, err)
 					},
 				)
 			}
@@ -142,13 +142,13 @@ func TestComparableConstraintErrUnsupportedParam(t *testing.T) {
 	testCases := []struct {
 		name       string
 		value      interface{}
-		validators []hw09structvalidator.ConstraintInterface
+		validators []core.ConstraintInterface
 		params     string
 	}{
 		{
 			name:  "int(string)",
 			value: 10,
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInIntConstraint(),
 			},
 			params: `6,sdasd`,
@@ -156,7 +156,7 @@ func TestComparableConstraintErrUnsupportedParam(t *testing.T) {
 		{
 			name:  "int(float)",
 			value: 10,
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInIntConstraint(),
 			},
 			params: `6,6.5`,
@@ -164,7 +164,7 @@ func TestComparableConstraintErrUnsupportedParam(t *testing.T) {
 		{
 			name:  "float(string)",
 			value: 10.5,
-			validators: []hw09structvalidator.ConstraintInterface{
+			validators: []core.ConstraintInterface{
 				NewInFloatConstraint(),
 			},
 			params: `6,6.5,asdas`,
@@ -174,11 +174,11 @@ func TestComparableConstraintErrUnsupportedParam(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			for _, validator := range testCase.validators {
 				t.Run(
-					fmt.Sprintf("%s(%s)", validator.ConstraintName(), validator.ConstraintSubName()),
+					fmt.Sprintf("%s(%s)", validator.ConstraintName(), validator.KindTypes()),
 					func(t *testing.T) {
 						constraints, err := validator.Validate(reflect.ValueOf(testCase.value), testCase.params)
 
-						var expectedErr hw09structvalidator.ErrUnsupportedConstraintParams
+						var expectedErr core.ErrUnsupportedConstraintParams
 						assert.Nil(t, constraints)
 						assert.ErrorAs(t, err, &expectedErr)
 					},
@@ -192,7 +192,7 @@ func TestComparableConstraintValid(t *testing.T) {
 	testCases := []struct {
 		name      string
 		value     interface{}
-		validator hw09structvalidator.ConstraintInterface
+		validator core.ConstraintInterface
 		params    string
 	}{
 		{
@@ -267,7 +267,7 @@ func TestComparableConstraintInvalid(t *testing.T) {
 	testCases := []struct {
 		name      string
 		value     interface{}
-		validator hw09structvalidator.ConstraintInterface
+		validator core.ConstraintInterface
 		params    string
 	}{
 		{
