@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	_ "github.com/kotoproger/go_hw/hw09structvalidator/constraint" //nolint: revive
+	_ "github.com/kotoproger/go_hw/hw09structvalidator/constraint"
 	"github.com/kotoproger/go_hw/hw09structvalidator/core"
 )
 
