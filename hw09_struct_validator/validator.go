@@ -44,7 +44,7 @@ func Validate(value interface{}) ValidationErrors {
 			ConstraintInfo := strings.Split(validationParam, ":")
 			if len(ConstraintInfo) != 2 {
 				errors = append(errors, core.ValidationError{
-					Field: typeReflection.Name(),
+					Field: typeReflection.Field(fieldNumber).Name,
 					Err:   core.ErrUnsupportedConstraintParams(fmt.Errorf("invalid validation params `%s`", validationParam)),
 				})
 
@@ -53,7 +53,7 @@ func Validate(value interface{}) ValidationErrors {
 			constraintTypes, ok := core.Constraints[ConstraintInfo[0]]
 			if !ok {
 				errors = append(errors, core.ValidationError{
-					Field: typeReflection.Name(),
+					Field: typeReflection.Field(fieldNumber).Name,
 					Err:   core.ErrUnknownConstraint(fmt.Errorf("invalid validation params `%s`", validationParam)),
 				})
 
@@ -62,7 +62,7 @@ func Validate(value interface{}) ValidationErrors {
 			typeConstraint, ok := constraintTypes[typeReflection.Field(fieldNumber).Type.Kind()]
 			if !ok {
 				errors = append(errors, core.ValidationError{
-					Field: typeReflection.Name(),
+					Field: typeReflection.Field(fieldNumber).Name,
 					Err:   core.ErrUnsupportedValueType,
 				})
 
@@ -76,13 +76,13 @@ func Validate(value interface{}) ValidationErrors {
 
 			for _, constraintError := range constraintErrors {
 				errors = append(errors, core.ValidationError{
-					Field: typeReflection.Name(),
+					Field: typeReflection.Field(fieldNumber).Name,
 					Err:   constraintError,
 				})
 			}
 			if validationError != nil {
 				errors = append(errors, core.ValidationError{
-					Field: typeReflection.Name(),
+					Field: typeReflection.Field(fieldNumber).Name,
 					Err:   validationError,
 				})
 			}
