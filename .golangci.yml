@@ -16,12 +16,14 @@ linters-settings:
           - "!$test"
         allow:
           - $gostd
+          - github.com/kotoproger/go_hw/hw09structvalidator
       Test:
         files:
           - $test
         allow:
           - $gostd
           - github.com/stretchr/testify
+          - github.com/kotoproger/go_hw/hw09structvalidator
 issues:
   exclude-rules:
     - path: _test\.go
