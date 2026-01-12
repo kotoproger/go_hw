@@ -47,12 +47,10 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	return result, nil
 }
 
-//type users [100_000]User
-
 func readFile(r io.Reader, output chan<- []byte) {
 	defer close(output)
 
-	reader := bufio.NewReaderSize(r, 1024*1024) // например 1MB буфер
+	reader := bufio.NewReaderSize(r, 1024*1024)
 
 	for {
 		line, err := reader.ReadBytes('\n')
@@ -67,19 +65,9 @@ func readFile(r io.Reader, output chan<- []byte) {
 		}
 		output <- line
 	}
-
-	//scanner := bufio.NewScanner(r)
-	//
-	//for scanner.Scan() {
-	//	slice := scanner.Bytes()
-	//	data := make([]byte, len(slice))
-	//	copy(data, slice)
-	//	output <- data
-	//}
 }
 
 func parseUsers(input <-chan []byte, domain *regexp.Regexp, output chan<- string) {
-
 	var user User
 	for line := range input {
 		user.UnmarshalEasyJSON(&jlexer.Lexer{Data: line})

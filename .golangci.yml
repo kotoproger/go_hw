@@ -16,6 +16,7 @@ linters-settings:
           - "!$test"
         allow:
           - $gostd
+          - github.com/mailru/easyjson/jlexer
       Test:
         files:
           - $test
