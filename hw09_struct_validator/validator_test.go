@@ -43,12 +43,6 @@ type (
 		String string `validate:"min:1|max:100"`
 		Struct App    `validate:"len:5"`
 	}
-
-	invalidParam struct {
-		name              string `validate:"len:adasd|len:45.5|regexp:^[qwewqe("` //nolint:unused
-		wrongParamFormat  string `validate:"len:5:6|max"`                         //nolint:unused
-		unknownConstraint string `validate:"unknown:2121"`                        //nolint:unused
-	}
 )
 
 type expected struct {
@@ -142,8 +136,6 @@ func TestValidate(t *testing.T) {
 			in: failure{},
 			expectedErr: []expected{
 				{name: "String", err: core.ErrUnsupportedValueType},
-				{name: "String", err: core.ErrUnsupportedValueType},
-				{name: "Struct", err: core.ErrUnsupportedValueType},
 			},
 		},
 		{
@@ -160,11 +152,23 @@ func TestValidate(t *testing.T) {
 			err := Validate(tt.in)
 
 			if tt.expectedErr == nil {
-				assert.Equal(t, 0, len(err))
+				errors, ok := err.(ValidationErrors)
+				if ok {
+					assert.Equal(t, 0, len(errors))
+				} else {
+					assert.Nil(t, err)
+				}
+
 			} else {
-				for index, e := range tt.expectedErr {
-					assert.Equal(t, e.name, err[index].Field)
-					assert.ErrorIs(t, err[index].Err, e.err)
+				errors, ok := err.(ValidationErrors)
+				if !ok {
+					assert.Equal(t, 1, len(tt.expectedErr), "expected more than 1 error")
+					assert.ErrorIs(t, err, tt.expectedErr[0].err)
+				} else {
+					for index, e := range tt.expectedErr {
+						assert.Equal(t, e.name, errors[index].Field)
+						assert.ErrorIs(t, errors[index].Err, e.err)
+					}
 				}
 			}
 			_ = tt
@@ -172,24 +176,51 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func TestPreparingParams(t *testing.T) {
-	err := Validate(invalidParam{})
+func TestUnsupportedConstraintParams(t *testing.T) {
+	testCases := []struct {
+		name string
+		in   any
+	}{
+		{
+			name: "string length",
+			in: struct {
+				name string `validate:"len:adasd"`
+			}{},
+		},
+		{
+			name: "float length",
+			in: struct {
+				name string `validate:"len:5.45"`
+			}{},
+		},
+		{
+			name: "broken regexp",
+			in: struct {
+				name string `validate:"regexp:^[qwewqe("`
+			}{},
+		},
+		{
+			name: "params count",
+			in: struct {
+				name string `validate:"len:4:5"`
+			}{},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var expectedErr core.ErrUnsupportedConstraintParams
+			err := Validate(tc.in)
 
-	var expectedErr core.ErrUnsupportedConstraintParams
+			assert.ErrorAs(t, err, &expectedErr)
+		})
+	}
+}
+
+func TestUnknownConstratint(t *testing.T) {
+	err := Validate(struct {
+		unknownConstraint string `validate:"unknown:2121"`
+	}{})
 	var unknown core.ErrUnknownConstraint
 
-	assert.ErrorAs(t, err[0].Err, &expectedErr)
-	assert.Equal(t, err[0].Field, "name")
-	assert.ErrorAs(t, err[1].Err, &expectedErr)
-	assert.Equal(t, err[1].Field, "name")
-	assert.ErrorAs(t, err[2].Err, &expectedErr)
-	assert.Equal(t, err[2].Field, "name")
-
-	assert.ErrorAs(t, err[3].Err, &expectedErr)
-	assert.Equal(t, err[3].Field, "wrongParamFormat")
-	assert.ErrorAs(t, err[4].Err, &expectedErr)
-	assert.Equal(t, err[4].Field, "wrongParamFormat")
-
-	assert.ErrorAs(t, err[5].Err, &unknown)
-	assert.Equal(t, err[5].Field, "unknownConstraint")
+	assert.ErrorAs(t, err, &unknown)
 }

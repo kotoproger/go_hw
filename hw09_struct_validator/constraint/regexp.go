@@ -8,7 +8,7 @@ import (
 	"github.com/kotoproger/go_hw/hw09structvalidator/core"
 )
 
-var ErrDoesNotMatchPattern = errors.New("does not match the pattern")
+var ErrDoesNotMatchPattern core.ErrConstraint = errors.New("does not match the pattern")
 
 type RegexpConstraint struct {
 	baseConstraint[string, *regexp.Regexp]

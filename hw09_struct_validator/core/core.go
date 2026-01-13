@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 )
 
@@ -10,6 +11,7 @@ var Constraints = make(map[string]map[reflect.Kind]ConstraintInterface)
 type (
 	ErrUnsupportedConstraintParams error
 	ErrUnknownConstraint           error
+	ErrConstraint                  error
 )
 
 var ErrUnsupportedValueType = errors.New("unsupported value type")
@@ -19,6 +21,10 @@ var ErrUnsupportedValueType = errors.New("unsupported value type")
 type ValidationError struct {
 	Field string
 	Err   error
+}
+
+func (v ValidationError) Error() string {
+	return fmt.Sprintf("%s: %s", v.Field, v.Err.Error())
 }
 
 type ConstraintInterface interface {

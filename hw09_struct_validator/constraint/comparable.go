@@ -10,7 +10,7 @@ import (
 	"github.com/kotoproger/go_hw/hw09structvalidator/core"
 )
 
-var ErrValueIsNotAllowed = errors.New("value is not allowed")
+var ErrValueIsNotAllowed core.ErrConstraint = errors.New("value is not allowed")
 
 type comparableConstraint[T comparable] struct {
 	baseConstraint[T, []T]

@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	ErrInvalidValueLength = errors.New("invalid value length")
-	ErrValueToLarge       = errors.New("value too large")
-	ErrValueToSmall       = errors.New("value too small")
+	ErrInvalidValueLength core.ErrConstraint = errors.New("invalid value length")
+	ErrValueToLarge       core.ErrConstraint = errors.New("value too large")
+	ErrValueToSmall       core.ErrConstraint = errors.New("value too small")
 )
 
 type orderedConstraint[T cmp.Ordered] struct {

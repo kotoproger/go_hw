@@ -14,13 +14,14 @@ func (v ValidationErrors) Error() string {
 	builder := strings.Builder{}
 	for _, err := range v {
 		builder.WriteString(
-			fmt.Sprintf("Validation error for field %s: %s\n", err.Field, err.Err))
+			err.Error() + "\n",
+		)
 	}
 
 	return builder.String()
 }
 
-func Validate(value interface{}) ValidationErrors {
+func Validate(value interface{}) error {
 	errors := ValidationErrors{}
 	valueReflection := reflect.ValueOf(value)
 	if valueReflection.Kind() == reflect.Pointer {
@@ -43,30 +44,18 @@ func Validate(value interface{}) ValidationErrors {
 		for _, validationParam := range validationParams {
 			ConstraintInfo := strings.Split(validationParam, ":")
 			if len(ConstraintInfo) != 2 {
-				errors = append(errors, core.ValidationError{
-					Field: typeReflection.Field(fieldNumber).Name,
-					Err:   core.ErrUnsupportedConstraintParams(fmt.Errorf("invalid validation params `%s`", validationParam)),
-				})
 
-				continue
+				return core.ErrUnsupportedConstraintParams(fmt.Errorf("invalid validation params `%s`", validationParam))
 			}
 			constraintTypes, ok := core.Constraints[ConstraintInfo[0]]
 			if !ok {
-				errors = append(errors, core.ValidationError{
-					Field: typeReflection.Field(fieldNumber).Name,
-					Err:   core.ErrUnknownConstraint(fmt.Errorf("invalid validation params `%s`", validationParam)),
-				})
 
-				continue
+				return core.ErrUnknownConstraint(fmt.Errorf("invalid validation params `%s`", validationParam))
 			}
 			typeConstraint, ok := constraintTypes[typeReflection.Field(fieldNumber).Type.Kind()]
 			if !ok {
-				errors = append(errors, core.ValidationError{
-					Field: typeReflection.Field(fieldNumber).Name,
-					Err:   core.ErrUnsupportedValueType,
-				})
 
-				continue
+				return core.ErrUnsupportedValueType
 			}
 
 			constraintErrors, validationError := typeConstraint.Validate(
@@ -74,18 +63,17 @@ func Validate(value interface{}) ValidationErrors {
 				ConstraintInfo[1],
 			)
 
+			if validationError != nil {
+				return validationError
+			}
+
 			for _, constraintError := range constraintErrors {
 				errors = append(errors, core.ValidationError{
 					Field: typeReflection.Field(fieldNumber).Name,
 					Err:   constraintError,
 				})
 			}
-			if validationError != nil {
-				errors = append(errors, core.ValidationError{
-					Field: typeReflection.Field(fieldNumber).Name,
-					Err:   validationError,
-				})
-			}
+
 		}
 	}
 	return errors
