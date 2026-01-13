@@ -1,6 +1,9 @@
 package main
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 func main() {
 	envs, err := ReadDir(os.Args[1])
@@ -15,7 +18,8 @@ func main() {
 		os.Stdin,
 	)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 	os.Exit(code)
 }
