@@ -152,25 +152,25 @@ func TestValidate(t *testing.T) {
 			err := Validate(tt.in)
 
 			if tt.expectedErr == nil {
-				errors, ok := err.(ValidationErrors)
+				errors, ok := err.(ValidationErrors) //nolint: errorlint
 				if ok {
 					assert.Equal(t, 0, len(errors))
 				} else {
 					assert.Nil(t, err)
 				}
-
+				return
+			}
+			errors, ok := err.(ValidationErrors) //nolint: errorlint
+			if !ok {
+				assert.Equal(t, 1, len(tt.expectedErr), "expected more than 1 error")
+				assert.ErrorIs(t, err, tt.expectedErr[0].err)
 			} else {
-				errors, ok := err.(ValidationErrors)
-				if !ok {
-					assert.Equal(t, 1, len(tt.expectedErr), "expected more than 1 error")
-					assert.ErrorIs(t, err, tt.expectedErr[0].err)
-				} else {
-					for index, e := range tt.expectedErr {
-						assert.Equal(t, e.name, errors[index].Field)
-						assert.ErrorIs(t, errors[index].Err, e.err)
-					}
+				for index, e := range tt.expectedErr {
+					assert.Equal(t, e.name, errors[index].Field)
+					assert.ErrorIs(t, errors[index].Err, e.err)
 				}
 			}
+
 			_ = tt
 		})
 	}

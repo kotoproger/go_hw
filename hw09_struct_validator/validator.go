@@ -44,17 +44,14 @@ func Validate(value interface{}) error {
 		for _, validationParam := range validationParams {
 			ConstraintInfo := strings.Split(validationParam, ":")
 			if len(ConstraintInfo) != 2 {
-
 				return core.ErrUnsupportedConstraintParams(fmt.Errorf("invalid validation params `%s`", validationParam))
 			}
 			constraintTypes, ok := core.Constraints[ConstraintInfo[0]]
 			if !ok {
-
 				return core.ErrUnknownConstraint(fmt.Errorf("invalid validation params `%s`", validationParam))
 			}
 			typeConstraint, ok := constraintTypes[typeReflection.Field(fieldNumber).Type.Kind()]
 			if !ok {
-
 				return core.ErrUnsupportedValueType
 			}
 
@@ -73,7 +70,6 @@ func Validate(value interface{}) error {
 					Err:   constraintError,
 				})
 			}
-
 		}
 	}
 	return errors
