@@ -19,7 +19,7 @@ type DomainStat map[string]int
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	stringChannel := make(chan []byte, 25)
 	domainsChannel := make(chan string, 20)
-	domainRegexp := regexp.MustCompile("@(.*\\." + domain + ".*)$")
+	domainRegexp := regexp.MustCompile("@(.*\\." + domain + "\\.?)$")
 
 	go func() {
 		readFile(r, stringChannel)
