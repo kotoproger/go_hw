@@ -16,6 +16,7 @@ linters-settings:
           - "!$test"
         allow:
           - $gostd
+          - github.com/mailru/easyjson/jlexer
           - github.com/kotoproger/go_hw/hw09structvalidator
       Test:
         files:
