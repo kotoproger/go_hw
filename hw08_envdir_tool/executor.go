@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	RunCmdErrorWrongParametersCount = iota + 10
+	RunCmdErrorWrongParametersCount = iota
 	RunCmdErrorPrepareEnvironment
 	RunCmdErrorStartCommand
 	RunCmdErrorCommand
