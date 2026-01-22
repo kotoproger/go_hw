@@ -8,18 +8,19 @@ import (
 func main() {
 	envs, err := ReadDir(os.Args[1])
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	code, err := RunCmd(
+	code, runErr := RunCmd(
 		os.Args[2:],
 		envs,
 		os.Stderr,
 		os.Stdout,
 		os.Stdin,
 	)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	if runErr != nil {
+		fmt.Println(runErr)
+		os.Exit(runErr.Code())
 	}
 	os.Exit(code)
 }
